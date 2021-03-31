@@ -20,8 +20,8 @@ runs:
         }' >> ~/.terraformrc
       shell: bash
     - id: tf_init
-      run: docker run -i -v $PWD/terraform:/terraform -v ~/.terraformrc:/root/.terraformrc hashicorp/terraform:${{ inputs.terraform_version }} init /terraform
+      run: docker run -i -v $PWD/terraform:/terraform -v $PWD:/.terraform -v ~/.terraformrc:/root/.terraformrc hashicorp/terraform:${{ inputs.terraform_version }} init /terraform
       shell: bash
     - id: tf_plan
-      run: docker run -i -v $PWD/terraform:/terraform -v ~/.terraformrc:/root/.terraformrc hashicorp/terraform:${{ inputs.terraform_version }} plan -no-color /terraform
+      run: docker run -i -v $PWD/terraform:/terraform -v $PWD:/.terraform -v ~/.terraformrc:/root/.terraformrc hashicorp/terraform:${{ inputs.terraform_version }} plan -no-color /terraform
       shell: bash
