@@ -16,7 +16,7 @@ runs:
     - id: tf_login
       run: |
         echo credentials "app.terraform.io" {
-          token = "${{inputs.cli_config_credentials_token}}""
+          token = "${{inputs.cli_config_credentials_token}}"
         } >> ./terraform/credentials.tf
       shell: bash
     - id: tf_init
