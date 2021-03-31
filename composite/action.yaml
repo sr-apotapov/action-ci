@@ -1,0 +1,17 @@
+name: 'CI Script'
+description: 'CI Script'
+inputs:
+  terraform_version:
+    description: 'Who to greet'
+    required: false
+    default: '0.13.5'
+# outputs:
+runs:
+  using: "composite"
+  steps:
+    - id: tf init
+      run: docker run -i -t hashicorp/terraform:${{ inputs.terraform_version }} init terraform
+      shell: bash
+    - id: tf plan
+      run: docker run -i -t hashicorp/terraform:${{ inputs.terraform_version }} plan -no-color terraform
+      shell: bash

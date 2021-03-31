@@ -1,8 +1,15 @@
 name: "Linter"
 description: "The First Action"
+inputs:
+  token:
+    description: 'GITHUB_TOKEN'
+    required: true
+    default: ${{secrets.GH_ACTION_TOKEN}}
 runs:
   using: 'docker'
   image: 'docker://ghcr.io/github/super-linter:v3.15.5'
+  args:
+    - ${{ inputs.token }}
 branding:
   icon: 'check-square'
   color: 'white'

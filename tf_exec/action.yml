@@ -18,8 +18,11 @@ inputs:
     default: 'true'
     required: false
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: 'docker'
+  image: 'docker://hub.docker.com/hashicorp/terraform:${{inputs.terraform_version}}'
+  args:
+    - terraform init terraform
+    - terraform plan -no-color terraform
 branding:
   icon: 'terminal'
   color: 'purple'
