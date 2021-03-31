@@ -5,6 +5,11 @@ inputs:
     description: 'Who to greet'
     required: false
     default: '0.13.5'
+  cli_config_credentials_token:
+    description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
+    required: false
+    default: ${{ secrets.TF_API_TOKEN }}
+
 # outputs:
 runs:
   using: "composite"
