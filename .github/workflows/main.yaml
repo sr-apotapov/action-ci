@@ -1,0 +1,157 @@
+name: Main actions
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./tf_exec
+        with:
+          terraform_version: ${{ terraform_version }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - uses: ./tf_linter
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          FILTER_REGEX_INCLUDE: .*terraform/.*
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Terraform - Format
+        id: fmt
+        run: terraform fmt -check -diff
+        working-directory: terraform
+
+      - name: Terraform - Init
+        id: init
+        run: terraform init
+        working-directory: terraform
+
+      - name: Terraform - Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: true
+        working-directory: terraform
+      - name: Policy - Install Script Packages
+        run: npm install axios@v0.21.0
+      - uses: ./tfe_plan
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          result-encoding: string
+          script: |
+            const fs = require('fs');
+            const axios = require(`${process.env.GITHUB_WORKSPACE}/node_modules/axios`);
+
+            const planOutput = `${{ steps.plan.outputs.stdout }}`;
+            const urlRegex = /app\.terraform\.io\/app\/(shoprunner|ShopRunner)\/[A-Za-z0-9\-]*\/runs\/run\-[A-Za-z0-9]*/;
+            const match = planOutput.match(urlRegex);
+            const urlSplit = match[0].split('/');
+            const planApiUrl = `https://app.terraform.io/api/v2/runs/${urlSplit[urlSplit.length - 1]}/plan`
+
+            const planResult = await axios.request(planApiUrl, {
+              headers: {
+                accept: 'application/json',
+                authorization: `Bearer ${{ secrets.TF_API_TOKEN }}`
+              }
+            });
+            const apiUrl = `https://app.terraform.io${planResult.data.data.links['json-output']}`;
+            const result = await axios.request(apiUrl, {
+              headers: {
+                accept: 'application/json',
+                authorization: `Bearer ${{ secrets.TF_API_TOKEN }}`
+              }
+            });
+
+            const tfplan = result.data;
+            const tfplanOutput = JSON.stringify(tfplan);
+
+            fs.writeFileSync('tfplan.json', tfplanOutput);
+            return tfplanOutput;
+
+      - name: Policy - Check
+        id: policy_check
+        uses: instrumenta/conftest-action@master
+        continue-on-error: true
+        with:
+          namespace: tfplan
+          files: tfplan.json
+
+      - name: Terraform - Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Policy - Status
+        if: steps.policy_check.outcome == 'failure'
+        run: exit 1
+
+      - name: Github Check Summary
+        uses: actions/github-script@v3
+        if: always()
+        env:
+          PLAN_STANDARD: "terraform\n${{ steps.plan.outputs.stdout }}"
+          POLICY: "Open Policy Agent\n${{ steps.policy_check.outputs.result }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            function renderOutcome (outcome) {
+              if (outcome === 'success') {
+                return '✅';
+              } else {
+                return '❌';
+              }
+            }
+
+            const summary = `### Checks
+            | Check                          | Status                                                   |
+            |--------------------------------|----------------------------------------------------------|
+            | Format and Style 🖌             | ${renderOutcome('${{ steps.fmt.outcome }}')}          |
+            | Code Scan 🔎                    | ${renderOutcome('${{ steps.code_scan.outcome }}')}    |
+            | Initialization ⚙️               | ${renderOutcome('${{ steps.init.outcome }}')}         |
+            | Plan 📖                         | ${renderOutcome('${{ steps.plan.outcome }}')}         |
+            | Policy Check 📋                 | ${renderOutcome('${{ steps.policy_check.outcome }}')} |
+
+            ---
+
+            **Pusher:** @${{ github.actor }}
+
+            **Latest Commit:** ${{ github.event.pull_request.head.sha }}
+            `.trim();
+
+            const text = `
+            #### Terraform Plan
+            View the full plan output below.
+            <details><summary>Show Plan: Standard</summary>
+
+             \`\`\`
+             ${process.env.PLAN_STANDARD}
+             \`\`\`
+
+            </details>
+            `.trim();
+
+            const baseParams = {
+              owner: '${{ github.repository_owner }}',
+              repo: '${{ github.event.repository.name }}',
+            };
+
+            const result = await github.checks.create({
+              head_sha: '${{ github.event.pull_request.head.sha }}',
+              name: 'Terraform CI - Summary',
+              owner: '${{ github.repository_owner }}',
+              repo: '${{ github.event.repository.name }}',
+              conclusion: '${{ job.status }}',
+              output: {
+                title: 'Terraform Summary',
+                text,
+                summary
+              }
+            });
+
+            core.info(JSON.stringify(result.data));
+            core.info(JSON.stringify({ status: result.status, url: result.url }));
