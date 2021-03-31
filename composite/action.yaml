@@ -9,11 +9,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: cd ./terraform
-      shell: bash
     - id: tf_init
-      run: docker run -i hashicorp/terraform:${{ inputs.terraform_version }} init
+      run: docker run -i -v $PWD/terraform:/terraform hashicorp/terraform:${{ inputs.terraform_version }} init /terraform
       shell: bash
     - id: tf_plan
-      run: docker run -i hashicorp/terraform:${{ inputs.terraform_version }} plan -no-color
+      run: docker run -i -v $PWD/terraform:/terraform hashicorp/terraform:${{ inputs.terraform_version }} plan -no-color /terraform
       shell: bash
