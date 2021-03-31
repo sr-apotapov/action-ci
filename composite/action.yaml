@@ -14,7 +14,10 @@ runs:
   using: "composite"
   steps:
     - id: tf_login
-      run: export TFE_TOKEN=${{inputs.cli_config_credentials_token}}
+      run: |
+        echo credentials "app.terraform.io" {
+          token = "${{inputs.cli_config_credentials_token}}""
+        } >> ./terraform/credentials.tf
       shell: bash
     - id: tf_init
       run: docker run -i -v $PWD/terraform:/terraform hashicorp/terraform:${{ inputs.terraform_version }} init /terraform
