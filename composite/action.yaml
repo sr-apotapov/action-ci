@@ -15,9 +15,9 @@ runs:
   steps:
     - id: tf_login
       run: |
-        echo credentials "app.terraform.io" {
+        echo 'credentials "app.terraform.io" {
           token = "${{inputs.cli_config_credentials_token}}"
-        } >> ./terraform/credentials.tf
+        }' >> ./terraform/credentials.tf
       shell: bash
     - id: tf_init
       run: docker run -i -v $PWD/terraform:/terraform hashicorp/terraform:${{ inputs.terraform_version }} init /terraform
