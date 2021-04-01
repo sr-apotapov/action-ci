@@ -38,6 +38,9 @@ runs:
     - id: tf_fmt
       run: terraform fmt -check terraform
       shell: bash
+    - id: tf_version
+      run: terraform version
+      shell: bash
     - id: tf_init
       run: terraform init terraform
       shell: bash
