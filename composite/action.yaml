@@ -16,7 +16,8 @@ runs:
     - id: tf_install
       run: |
         git clone https://github.com/tfutils/tfenv.git ~/.tfenv \
-        ln -s ~/.tfenv/bin/* /usr/local/bin
+        ln -s ~/.tfenv/bin/* /usr/local/bin \
+        tfenv install ${{inputs.terraform_version}}
       shell: bash
     - id: tf_login
       run: |
