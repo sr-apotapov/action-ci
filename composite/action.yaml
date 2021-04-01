@@ -7,7 +7,7 @@ inputs:
     default: '0.13.6'
   cli_config_credentials_token:
     description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
-    required: false
+    required: true
   token:
     description: 'GITHUB_TOKEN'
     required: true
@@ -31,10 +31,10 @@ runs:
     - id: tf_install  
       run: node setup-terraform/dist/index.js
       shell: bash
-    - id: super_linter #We can speed up the proccess (which takes at least few minutes to process by reworking the Docker image)
-      run: |
-          docker run -e RUN_LOCAL=true -e VALIDATE_ALL_CODEBASE=false -e DEFAULT_BRANCH=master -e FILTER_REGEX_INCLUDE=".*terraform/.*" -v ${{github.workspace}}:/tmp/lint ghcr.io/github/super-linter:v3.15.5 || true
-      shell: bash
+    # - id: super_linter #We can speed up the proccess (which takes at least few minutes to process by reworking the Docker image)
+    #   run: |
+    #       docker run -e RUN_LOCAL=true -e VALIDATE_ALL_CODEBASE=false -e DEFAULT_BRANCH=master -e FILTER_REGEX_INCLUDE=".*terraform/.*" -v ${{github.workspace}}:/tmp/lint ghcr.io/github/super-linter:v3.15.5 || true
+    #   shell: bash
     - id: tf_fmt
       run: terraform fmt -check terraform
       shell: bash
