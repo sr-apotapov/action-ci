@@ -13,14 +13,16 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: tf_install
+    - id: envs
       run: |
         export RUNNER_TEMP="/tmp" \
         export terraform_version="${{inputs.terraform_version}}" \
-        export cli_config_credentials_token="${{inputs.cli_config_credentials_token}}" \
-        git clone https://github.com/hashicorp/setup-terraform
+        export cli_config_credentials_token="${{inputs.cli_config_credentials_token}}"
       shell: bash
-    - run: node setup-terraform/dist/index.js
+    - id: tf_install
+      run: |
+        git clone https://github.com/hashicorp/setup-terraform \
+        node setup-terraform/dist/index.js
       shell: bash
     - id: tf_login
       run: |
