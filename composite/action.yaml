@@ -35,7 +35,9 @@ runs:
       run: git clone https://github.com/tfutils/tfenv.git ~/.tfenv
       shell: bash
     - id: tfenv_echo
-      run: echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bash_profile
+      run: |
+          echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bash_profile && \
+          source ~/.bash_profile
       shell: bash
     - id: tf_install  
       run: tfenv install ${{inputs.terraform_version}}
