@@ -25,22 +25,60 @@ runs:
     - id: tf_install  
       run: node setup-terraform/dist/index.js
       shell: bash
-    - id: tf_login
+    - id: super_linter
       run: |
-        echo 'credentials "app.terraform.io" {
-          token = "${{inputs.cli_config_credentials_token}}"
-        }' >> ~/.terraformrc
+          docker run --name superlinter --workdir /github/workspace --rm -e TERRAFORM_CLI_PATH -e VALIDATE_ALL_CODEBASE \
+          -e DEFAULT_BRANCH -e FILTER_REGEX_INCLUDE -e LOG_LEVEL -e OUTPUT_FORMAT -e OUTPUT_FOLDER \
+          -e OUTPUT_DETAILS -e GITHUB_TOKEN -e HOME -e GITHUB_JOB -e GITHUB_REF -e GITHUB_SHA \
+          -e GITHUB_REPOSITORY -e GITHUB_REPOSITORY_OWNER -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER \
+          -e GITHUB_RETENTION_DAYS -e GITHUB_ACTOR -e GITHUB_WORKFLOW -e GITHUB_HEAD_REF -e GITHUB_BASE_REF \
+          -e GITHUB_EVENT_NAME -e GITHUB_SERVER_URL -e GITHUB_API_URL -e GITHUB_GRAPHQL_URL -e GITHUB_WORKSPACE \
+          -e GITHUB_ACTION -e GITHUB_EVENT_PATH -e GITHUB_ACTION_REPOSITORY -e GITHUB_ACTION_REF -e GITHUB_PATH \
+          -e GITHUB_ENV -e RUNNER_OS -e RUNNER_TOOL_CACHE -e RUNNER_TEMP -e RUNNER_WORKSPACE \
+          -e ACTIONS_RUNTIME_URL -e ACTIONS_RUNTIME_TOKEN -e ACTIONS_CACHE_URL -e GITHUB_ACTIONS=true -e CI=true \
+          -v "/var/run/docker.sock":"/var/run/docker.sock" \
+          -v "/home/runner/work/_temp/_github_home":"/github/home" \
+          -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" \
+          -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" \
+          -v "/home/runner/work/tf-github/tf-github":"/github/workspace" ghcr.io/github/super-linter:v3.15.5
+      shell: bash
+    - id: tf_fmt
+      run: terraform fmt -check terraform
       shell: bash
     - id: tf_init
-      run: terraform init terraform
+      run: export TF_WORKSPACE="primary" && terraform init terraform
       shell: bash
     - id: tf_plan
-      run: terraform plan -no-color terraform
+      run: export TF_WORKSPACE="primary" && terraform plan -no-color terraform
+      shell: bash
+    - id: Policy - Install Script Packages
+      run: npm install axios@v0.21.0
       shell: bash
 
-    # - id: tf_init
-    #   run: docker run -i -v $PWD/terraform:/terraform -v $PWD:/.terraform -v ~/.terraformrc:/root/.terraformrc hashicorp/terraform:${{ inputs.terraform_version }} init /terraform
-    #   shell: bash
-    # - id: tf_plan
-    #   run: docker run -i -v $PWD/terraform:/terraform -v $PWD:/.terraform -v ~/.terraformrc:/root/.terraformrc hashicorp/terraform:${{ inputs.terraform_version }} plan -no-color /terraform
-    #   shell: bash
+    # - id: Policy - Read Plan
+      run: |
+        const fs = require('fs');
+        const axios = require(`${process.env.GITHUB_WORKSPACE}/node_modules/axios`);
+        const planOutput = `${{ steps.plan.outputs.stdout }}`;
+        const urlRegex = /app\.terraform\.io\/app\/shoprunner\/[A-Za-z0-9\-]*\/runs\/run\-[A-Za-z0-9]*/;
+        const match = planOutput.match(urlRegex);
+        const urlSplit = match[0].split('/');
+        const planApiUrl = `https://app.terraform.io/api/v2/runs/${urlSplit[urlSplit.length - 1]}/plan`
+        const planResult = await axios.request(planApiUrl, {
+          headers: {
+            accept: 'application/json',
+            authorization: `Bearer ${{ secrets.TF_API_TOKEN }}`
+          }
+        });
+        const apiUrl = `https://app.terraform.io${planResult.data.data.links['json-output']}`;
+        const result = await axios.request(apiUrl, {
+          headers: {
+            accept: 'application/json',
+            authorization: `Bearer ${{ secrets.TF_API_TOKEN }}`
+          }
+        });
+        const tfplan = result.data;
+        const tfplanOutput = JSON.stringify(tfplan);
+        fs.writeFileSync('tfplan.json', tfplanOutput);
+        return tfplanOutput;
+      shell: bash
