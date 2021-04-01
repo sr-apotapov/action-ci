@@ -8,16 +8,22 @@ inputs:
   cli_config_credentials_token:
     description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
     required: false
-
-# outputs:
+  github_token:
+    description: 'GITHUB_TOKEN'
+    required: true
+    default: ${{secrets.GH_ACTION_TOKEN}}
 runs:
   using: "composite"
   steps:
     - id: envs
       run: |
         export RUNNER_TEMP="/tmp" \
-        export terraform_version="${{inputs.terraform_version}}" \
-        export cli_config_credentials_token="${{inputs.cli_config_credentials_token}}"
+        export terraform_version="${{ inputs.terraform_version }}" \
+        export cli_config_credentials_token="${{ inputs.cli_config_credentials_token }}" \
+        export VALIDATE_ALL_CODEBASE="false" \
+        export DEFAULT_BRANCH="master" \
+        export FILTER_REGEX_INCLUDE=".*terraform/.*" \
+        export GITHUB_TOKEN="${{ inputs.github_token }}"
       shell: bash
     - id: git_clone
       run: git clone https://github.com/hashicorp/setup-terraform
@@ -25,7 +31,7 @@ runs:
     - id: tf_install  
       run: node setup-terraform/dist/index.js
       shell: bash
-    - id: super_linter
+    - id: super_linter #We can speed up the proccess (which takes at least few minutes to process by reworking the Docker image)
       run: |
           docker run --name superlinter --workdir /github/workspace --rm -e TERRAFORM_CLI_PATH -e VALIDATE_ALL_CODEBASE \
           -e DEFAULT_BRANCH -e FILTER_REGEX_INCLUDE -e LOG_LEVEL -e OUTPUT_FORMAT -e OUTPUT_FOLDER \
