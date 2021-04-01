@@ -37,7 +37,7 @@ runs:
     - id: tfenv_echo
       run: echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bash_profile && \
       shell: bash
-    - id: tfenv_echo
+    - id: tfenv_source
       shell: bash
       run: source ~/.bash_profile
     - id: tf_install  
