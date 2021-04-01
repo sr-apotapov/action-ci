@@ -19,7 +19,8 @@ runs:
         export terraform_version=${{inputs.terraform_version}} \
         export cli_config_credentials_token=${{inputs.cli_config_credentials_token}} \
         git clone https://github.com/hashicorp/setup-terraform \
-        node setup-terraform/dist/index.js
+      shell: bash
+    - run: node setup-terraform/dist/index.js
       shell: bash
     - id: tf_login
       run: |
