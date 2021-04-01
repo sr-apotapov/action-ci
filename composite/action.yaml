@@ -33,7 +33,7 @@ runs:
       shell: bash
     - id: super_linter #We can speed up the proccess (which takes at least few minutes to process by reworking the Docker image)
       run: |
-          docker run -v ${{env.GITHUB_WORKSPACE}}:/tmp/lint ghcr.io/github/super-linter:v3.15.5
+          docker run -e RUN_LOCAL=true -e VALIDATE_ALL_CODEBASE=false -e DEFAULT_BRANCH=master -e FILTER_REGEX_INCLUDE=.*terraform/.* -v ${{env.GITHUB_WORKSPACE}}:/tmp/lint ghcr.io/github/super-linter:v3.15.5
       shell: bash
     - id: tf_fmt
       run: terraform fmt -check terraform
