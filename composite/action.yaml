@@ -2,14 +2,17 @@ name: 'CI Script'
 description: 'CI Script'
 inputs:
   terraform_version:
-    description: 'Who to greet'
+    description: 'tf version'
     required: false
-    default: '0.13.5'
+    default: '0.13.6'
   cli_config_credentials_token:
     description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
     required: false
   token:
     description: 'GITHUB_TOKEN'
+    required: true
+  GITHUB_WORKSPACE:
+    description: 'Who to greet'
     required: true
 runs:
   using: "composite"
@@ -33,7 +36,7 @@ runs:
       shell: bash
     - id: super_linter #We can speed up the proccess (which takes at least few minutes to process by reworking the Docker image)
       run: |
-          docker run -e RUN_LOCAL=true -e VALIDATE_ALL_CODEBASE=false -e DEFAULT_BRANCH=master -e FILTER_REGEX_INCLUDE=.*terraform/.* -v ${{env.GITHUB_WORKSPACE}}:/tmp/lint ghcr.io/github/super-linter:v3.15.5
+          docker run -e RUN_LOCAL=true -e VALIDATE_ALL_CODEBASE=false -e DEFAULT_BRANCH=master -e FILTER_REGEX_INCLUDE=".*terraform/.*" -v ${{ inputs.GITHUB_WORKSPACE }}:/tmp/lint ghcr.io/github/super-linter:v3.15.5
       shell: bash
     - id: tf_fmt
       run: terraform fmt -check terraform
