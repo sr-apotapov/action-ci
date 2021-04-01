@@ -12,7 +12,7 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - --build-arg terraform_version=${{ inputs.terraform_version }}
+    - -e terraform_version=${{ inputs.terraform_version }} --build-arg terraform_version=${{ inputs.terraform_version }}
 branding:
   icon: 'check-square'
   color: 'white'
