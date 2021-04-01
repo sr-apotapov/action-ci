@@ -8,10 +8,9 @@ inputs:
   cli_config_credentials_token:
     description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
     required: false
-  github_token:
+  token:
     description: 'GITHUB_TOKEN'
     required: true
-    default: ${{secrets.GH_ACTION_TOKEN}}
 runs:
   using: "composite"
   steps:
@@ -23,7 +22,7 @@ runs:
         export VALIDATE_ALL_CODEBASE="false" \
         export DEFAULT_BRANCH="master" \
         export FILTER_REGEX_INCLUDE=".*terraform/.*" \
-        export GITHUB_TOKEN="${{ inputs.github_token }}"
+        export GITHUB_TOKEN="${{ inputs.token }}"
       shell: bash
     - id: git_clone
       run: git clone https://github.com/hashicorp/setup-terraform
