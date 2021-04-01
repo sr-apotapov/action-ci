@@ -32,7 +32,7 @@ runs:
         }' >> ~/.terraformrc
       shell: bash
     - id: tf_init
-      run: terraform Init
+      run: terraform init
       shell: bash
     - id: tf_plan
       run: terraform plan -no-color
