@@ -22,7 +22,8 @@ runs:
         export VALIDATE_ALL_CODEBASE="false" \
         export DEFAULT_BRANCH="master" \
         export FILTER_REGEX_INCLUDE=".*terraform/.*" \
-        export GITHUB_TOKEN="${{ inputs.token }}"
+        export GITHUB_TOKEN="${{ inputs.token }}" \
+        export GITHUB_ORG="ShopRunner"
       shell: bash
     - id: git_clone
       run: git clone https://github.com/hashicorp/setup-terraform
