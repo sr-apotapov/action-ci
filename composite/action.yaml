@@ -11,9 +11,6 @@ inputs:
   token:
     description: 'GITHUB_TOKEN'
     required: true
-  GITHUB_WORKSPACE:
-    description: 'Who to greet'
-    required: true
 runs:
   using: "composite"
   steps:
@@ -26,7 +23,7 @@ runs:
         export DEFAULT_BRANCH="master" \
         export FILTER_REGEX_INCLUDE=".*terraform/.*" \
         export GITHUB_TOKEN="${{ inputs.token }}" \
-        export GITHUB_ORG="ShopRunner"
+        export GITHUB_WORKSPACE=$GITHUB_WORKSPACE
       shell: bash
     - id: git_clone
       run: git clone https://github.com/hashicorp/setup-terraform
@@ -36,7 +33,7 @@ runs:
       shell: bash
     - id: super_linter #We can speed up the proccess (which takes at least few minutes to process by reworking the Docker image)
       run: |
-          docker run -e RUN_LOCAL=true -e VALIDATE_ALL_CODEBASE=false -e DEFAULT_BRANCH=master -e FILTER_REGEX_INCLUDE=".*terraform/.*" -v ${{ inputs.GITHUB_WORKSPACE }}:/tmp/lint ghcr.io/github/super-linter:v3.15.5
+          docker run -e RUN_LOCAL=true -e VALIDATE_ALL_CODEBASE=false -e DEFAULT_BRANCH=master -e FILTER_REGEX_INCLUDE=".*terraform/.*" -v $GITHUB_WORKSPACE:/tmp/lint ghcr.io/github/super-linter:v3.15.5
       shell: bash
     - id: tf_fmt
       run: terraform fmt -check terraform
