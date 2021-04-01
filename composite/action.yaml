@@ -25,11 +25,18 @@ runs:
         export GITHUB_TOKEN="${{ inputs.token }}" \
         export GITHUB_WORKSPACE=$GITHUB_WORKSPACE
       shell: bash
-    - id: git_clone
-      run: git clone https://github.com/hashicorp/setup-terraform
+    - id: tf_creds
+      run: echo 'credentials "app.terraform.io" { \
+          token = "${{ inputs.cli_config_credentials_token }}" }' > /root/.terraformrc
+      shell: bash
+    - id: tfenv_git_clone
+      run: git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+      shell: bash
+    - id: tfenv_ln
+      run: ln -s ~/.tfenv/bin/* /usr/local/bin
       shell: bash
     - id: tf_install  
-      run: node setup-terraform/dist/index.js
+      run: tfenv install ${{inputs.terraform_version}}
       shell: bash
     # - id: super_linter #We can speed up the proccess (which takes at least few minutes to process by reworking the Docker image)
     #   run: |
