@@ -46,12 +46,12 @@ runs:
       run: terraform fmt -check terraform
       shell: bash
     - id: tf_init
-      run: export TF_WORKSPACE="primary" && terraform init terraform
+      run: terraform init terraform
       shell: bash
     - id: tf_plan
-      run: export TF_WORKSPACE="primary" && terraform plan -no-color terraform
+      run: terraform plan -no-color terraform
       shell: bash
-    - id: Policy - Install Script Packages
+    - id: axios_install
       run: npm install axios@v0.21.0
       shell: bash
 
