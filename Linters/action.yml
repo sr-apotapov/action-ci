@@ -6,8 +6,8 @@ inputs:
     required: true
   terraform_version:
     description: 'The version of Terraform CLI to install. Instead of full version string you can also specify constraint string starting with "<" (for example `<1.13.0`) to install the latest version satisfying the constraint. A value of `latest` will install the latest version of Terraform CLI. Defaults to `latest`.'
-    default: '0.13.6'
-    required: false
+    default: '0.13.2'
+    required: true
 runs:
   using: "docker"
   image: "docker://srapotapov/terraform_lint:v6"
