@@ -19,7 +19,7 @@ RUN curl https://raw.githubusercontent.com/terraform-linters/tflint/master/insta
 ##############################
 # Install terrascan          #
 ##############################
-RUN curl --location https://github.com/accurics/terrascan/releases/download/v1.4.0/terrascan_1.4.0_Linux_arm64.tar.gz --output terrascan.tar.gz \
+RUN curl --location https://github.com/accurics/terrascan/releases/download/v1.4.0/terrascan_1.4.0_Linux_x86_64.tar.gz --output terrascan.tar.gz \
     && tar -xvf terrascan.tar.gz \
     && install terrascan /usr/local/bin
 ##############################
