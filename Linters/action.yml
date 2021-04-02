@@ -10,6 +10,6 @@ inputs:
     required: false
 runs:
   using: "docker"
-  image: "srapotapov/terraform_lint:v6"
+  image: "docker://hub.docker.com/srapotapov/terraform_lint:v6"
   args:
     - -e terraform_version="${{ inputs.terraform_version }}" -e TF_API_TOKEN="${{ inputs.cli_config_credentials_token }}"
