@@ -12,7 +12,7 @@ runs:
   using: "composite"
   steps:
     - id: docker_run
-      run: docker run -v ${{github.workspace}}:/data \ 
+      run: docker run -v $github.workspace:/data \ 
            -e terraform_version=${{ inputs.terraform_version }} \
            -e TF_API_TOKEN=${{ inputs.cli_config_credentials_token }} -t srapotapov/terraform_lint:v6
       shell: bash
