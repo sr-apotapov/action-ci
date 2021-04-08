@@ -1,91 +1,63 @@
-name: 'CI Script'
-description: 'CI Script'
+name: 'Get TFE output'
+description: 'Get TFE output'
 inputs:
-  terraform_version:
-    description: 'tf version'
-    required: false
-    default: '0.13.6'
-  cli_config_credentials_token:
-    description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
+  tf_api_token:
+    description: 'TF_API_TOKEN'
     required: true
-  token:
-    description: 'GITHUB_TOKEN'
+  tf_plan_output:
+    description: 'tf plan output'
     required: true
 runs:
   using: "composite"
   steps:
-    - id: envs #TODO cleanup GITHUB_WORKSPACE and other env vars 
+    - id: tfe_url
+      shell: bash
       run: |
-        export RUNNER_TEMP="/tmp" \
-        export terraform_version="${{ inputs.terraform_version }}" \
-        export cli_config_credentials_token="${{ inputs.cli_config_credentials_token }}" \
-        export VALIDATE_ALL_CODEBASE="false" \
-        export DEFAULT_BRANCH="master" \
-        export FILTER_REGEX_INCLUDE=".*terraform/.*" \
-        export GITHUB_TOKEN="${{ inputs.token }}" \
-        export GITHUB_WORKSPACE=$GITHUB_WORKSPACE
-      shell: bash
-    - id: tf_creds
-      run: |
-          echo 'credentials "app.terraform.io" {
-          token = "${{ inputs.cli_config_credentials_token }}"
-          }' > $HOME/.terraformrc
-      shell: bash
-    - id: tfenv_git_clone
-      run: git clone https://github.com/tfutils/tfenv.git ~/.tfenv
-      shell: bash
-    - id: tfenv_echo
-      run: echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bash_profile
-      shell: bash
-    - id: tfenv_source
-      shell: bash
-      run: source ~/.bash_profile
-    - id: tf_install  
-      run: tfenv install ${{inputs.terraform_version}}
-      shell: bash
+        whole_plan_url=$(echo "${{ inputs.tf_plan_output }}" | grep -o "https:\/\/app\.terraform\.io\/app\/ShopRunner\/[A-Za-z0-9\-]*\/runs\/run-[A-Za-z0-9]*") \
+        run_url=$(echo $tfplan | grep -o "run-[A-Za-z0-9]*") \
+        tfe_plan_url="https://app.terraform.io/api/v2/runs/${run_url}/plan" \
+        echo $tfe_plan_url
+        curl --header "Authorization: Bearer $tf_api_token" --header "Content-Type: application/json" $tfe_plan_url > tfplan.json
+
+    # - id: envs #TODO cleanup GITHUB_WORKSPACE and other env vars 
+    #   run: |
+    #     export RUNNER_TEMP="/tmp" \
+    #     export terraform_version="${{ inputs.terraform_version }}" \
+    #     export cli_config_credentials_token="${{ inputs.cli_config_credentials_token }}" \
+    #     export VALIDATE_ALL_CODEBASE="false" \
+    #     export DEFAULT_BRANCH="master" \
+    #     export FILTER_REGEX_INCLUDE=".*terraform/.*" \
+    #     export GITHUB_TOKEN="${{ inputs.token }}" \
+    #     export GITHUB_WORKSPACE=$GITHUB_WORKSPACE
+    #   shell: bash
+    # - id: git_clone
+    #   run: git clone https://github.com/hashicorp/setup-terraform
+    #   shell: bash
+    # - id: tf_install  
+    #   run: node setup-terraform/dist/index.js
+    #   shell: bash
     # - id: super_linter #We can speed up the proccess (which takes at least few minutes to process by reworking the Docker image)
     #   run: |
     #       docker run -e RUN_LOCAL=true -e VALIDATE_ALL_CODEBASE=false -e DEFAULT_BRANCH=master -e FILTER_REGEX_INCLUDE=".*terraform/.*" -v ${{github.workspace}}:/tmp/lint ghcr.io/github/super-linter:v3.15.5 || true
     #   shell: bash
-    - id: tf_fmt
-      run: terraform fmt -check terraform
-      shell: bash
-    - id: tf_version
-      run: terraform version
-      shell: bash
-    - id: tf_init
-      run: terraform init terraform
-      shell: bash
-    - id: tf_plan
-      run: terraform plan -no-color terraform
-      shell: bash
-    - id: axios_install
-      run: npm install axios@v0.21.0
-      shell: bash
-    # - id: Policy - Read Plan
-    #   run: |
-    #     const fs = require('fs');
-    #     const axios = require(`${process.env.GITHUB_WORKSPACE}/node_modules/axios`);
-    #     const planOutput = `${{ steps.plan.outputs.stdout }}`;
-    #     const urlRegex = /app\.terraform\.io\/app\/shoprunner\/[A-Za-z0-9\-]*\/runs\/run\-[A-Za-z0-9]*/;
-    #     const match = planOutput.match(urlRegex);
-    #     const urlSplit = match[0].split('/');
-    #     const planApiUrl = `https://app.terraform.io/api/v2/runs/${urlSplit[urlSplit.length - 1]}/plan`
-    #     const planResult = await axios.request(planApiUrl, {
-    #       headers: {
-    #         accept: 'application/json',
-    #         authorization: `Bearer ${{ secrets.TF_API_TOKEN }}`
-    #       }
-    #     });
-    #     const apiUrl = `https://app.terraform.io${planResult.data.data.links['json-output']}`;
-    #     const result = await axios.request(apiUrl, {
-    #       headers: {
-    #         accept: 'application/json',
-    #         authorization: `Bearer ${{ secrets.TF_API_TOKEN }}`
-    #       }
-    #     });
-    #     const tfplan = result.data;
-    #     const tfplanOutput = JSON.stringify(tfplan);
-    #     fs.writeFileSync('tfplan.json', tfplanOutput);
-    #     return tfplanOutput;
+    # - id: tf_fmt
+    #   run: terraform fmt -check terraform
     #   shell: bash
+    # - id: tf_init
+    #   run: terraform init terraform
+    #   shell: bash
+    # - id: tf_plan
+    #   run: terraform plan -no-color terraform
+    #   shell: bash
+    # - id: cleanup_tf_plan
+    #   run: |
+    #       logcontent=${{ steps.code_scan.output }}
+    #       logcontent="$(ls ./code_scan/*.tap | xargs cat)"
+    #       logcontent="${logcontent//'%'/'%25'}"
+    #       logcontent="${logcontent//$'\n'/'%0A'}"
+    #       logcontent="${logcontent//$'\r'/'%0D'}"
+    #       logcontent="${logcontent//$'$'/'\$'}"
+    #       logcontent="${logcontent//$'`'/'%60'}"
+    #       echo "::set-output name=content::$logcontent"
+    #   shell: bash
+    # - id: 
