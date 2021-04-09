@@ -20,10 +20,7 @@ runs:
         run_url=$(echo "${{ inputs.tf_plan_output }}" | grep -o "run-[A-Za-z0-9]*") \
         tfe_plan_url="https://app.terraform.io/api/v2/runs/${run_url}/plan" \
         echo $tfe_plan_url \
-        tfplan_env=$(curl \
-        --header "Authorization: Bearer $tf_api_token" \
-        --header "Content-Type: application/json" \
-        $tfe_plan_url ) \
+        tfplan_env=$(curl --header "Authorization: Bearer $tf_api_token" --header "Content-Type: application/json" $tfe_plan_url ) \
         echo $tfplan_env
     - id: random_number_generator
       run: echo "::set-output name=tfplan::$(echo $tfplan_env)"
