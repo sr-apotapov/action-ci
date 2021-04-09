@@ -71,14 +71,14 @@ runs:
       working-directory: terraform
       run: |
         terraform plan -no-color > plan.txt
+        tf_plan_env=$(cat plan.txt)
         plancontent=$(cat plan.txt)
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'%\n'/'%0A'}"
         plancontent="${plancontent//$'\r'/'%0D'}"
         plancontent="${plancontent//$'$'/'\$'}"
         plancontent="${plancontent//$'\`'/'%60'}"
-        echo "HERE A PLAN!!! $plancontent"
         echo "::set-output name=tfplan_summary::$plancontent"        
-        echo "::set-output name=tfplan_output::$(cat plan.txt)"
+        echo "::set-output name=tfplan_output::$tf_plan_env"
       shell: bash
 # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#environment-files
