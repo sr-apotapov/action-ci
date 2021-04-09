@@ -1,6 +1,5 @@
 name: 'Terraform Module'
 description: 'TF fmt & init & plan'
-
 outputs:
   fmt_summary:
     description: 'tf plan output for summary'
@@ -38,7 +37,11 @@ runs:
       working-directory: terraform
       run: |
         terraform plan -no-color > plan.txt
-        tf_plan_env=$(cat plan.txt)
+        echo !!!CATTING THE PLAN!!!
+        cat plan.txt
+        TF_PLAN_ENV=$(cat plan.txt)
+        echo !!!ECHOING THE TF_PLAN_ENV!!!
+        echo $TF_PLAN_ENV
         plancontent=$(cat plan.txt)
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'%\n'/'%0A'}"
@@ -46,7 +49,7 @@ runs:
         plancontent="${plancontent//$'$'/'\$'}"
         plancontent="${plancontent//$'\`'/'%60'}"
         echo "::set-output name=tfplan_summary::$plancontent"        
-        echo "::set-output name=tfplan_output::$tf_plan_env"
+        echo "::set-output name=tfplan_output::$TF_PLAN_ENV"
       shell: bash
 # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#environment-files
 
