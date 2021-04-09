@@ -8,30 +8,22 @@ inputs:
     description: 'tf plan output'
     required: true
 outputs:
-  tfplan_envar: 
+  tfplan: 
     description: "Random number"
-    value: ${{ steps.tf_plan_out.outputs.tfplan }}
+    value: ${{ steps.get_tfe_url.outputs.tfplan }}
 runs:
   using: "composite"
   steps:
     - id: get_tfe_url
       shell: bash
-      run: run_url=$(echo "$INPUT_TF_PLAN_OUTPUT" | grep -o "run-[A-Za-z0-9]*") 
-    - run: tfe_plan_url="https://app.terraform.io/api/v2/runs/${run_url}/plan"
-      shell: bash
-    - run: echo $tfe_plan_url
-      shell: bash
-    - id: get_tfe_output
-      shell: bash
       run: |
+        run_url=$(echo "$INPUT_TF_PLAN_OUTPUT" | grep -o "run-[A-Za-z0-9]*")
+        tfe_plan_url="https://app.terraform.io/api/v2/runs/${run_url}/plan"
+        echo $tfe_plan_url 
         curl --header "Authorization: Bearer $tf_api_token" --header "Content-Type: application/json" $tfe_plan_url -o tfplan.json
-    - run: tfplan_env=$(cat tfplan.json)
-      shell: bash
-    - id: tf_plan_out
-      run: | 
+        tfplan_env=$(cat tfplan.json)
         echo $tfplan_env
         echo "::set-output name=tfplan::$(echo $tfplan_env)"
-      shell: bash
  
  
  
