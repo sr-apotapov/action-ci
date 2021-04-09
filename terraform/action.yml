@@ -1,23 +1,23 @@
 name: 'Terraform Module'
 description: 'TF fmt & init & plan'
-inputs:
-  terraform_version:
-    description: 'tf version'
-    required: false
-    default: '0.13.6'
-  cli_config_credentials_token:
-    description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
-    required: true
+# inputs:
+#   terraform_version:
+#     description: 'tf version'
+#     required: false
+#     default: '0.13.6'
+#   cli_config_credentials_token:
+#     description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
+#     required: true
 outputs:
+  fmt_summary:
+    description: 'tf plan output for summary'
+    value: ${{ steps.tffmt_cleanup.outputs.fmt_summary }}
   tfplan_output:
     description: 'tf plan output'
     value: ${{ steps.tf_plan.outputs.tfplan_output }}
   tfplan_summary:
     description: 'tf plan output for summary'
-    value: ${{ steps.tf_plan_cleanup.outputs.plancontent }}
-  tffmt_cleanup:
-    description: 'tf plan output for summary'
-    value: ${{ steps.tffmt_cleanup.outputs.fmtcontent }}
+    value: ${{ steps.tf_plan_cleanup.outputs.tfplan_summary }}
 runs:
   using: "composite"
   steps:
@@ -52,17 +52,19 @@ runs:
     #   shell: bash
     - id: tf_fmt
       working-directory: terraform
-      run: terraform fmt -check -diff
+      run: |
+        terraform fmt -check -diff > fmt.txt
+        tf_plan_env=$(cat plan.txt)
       shell: bash
     - id: tffmt_cleanup
       run: |
-        fmtcontent="${{ steps.tf_fmt.output }}"
-        fmtcontent="${fmtcontent//'%'/'%25'}"
-        fmtcontent="${fmtcontent//$'%\n'/'%0A'}"
-        fmtcontent="${fmtcontent//$'\r'/'%0D'}"
-        fmtcontent="${fmtcontent//$'$'/'\$'}"
-        fmtcontent="${fmtcontent//$'`'/'%60'}"
-        echo "::set-output name=fmtcontent::$fmtcontent"        
+        fmt_summary="${{ steps.tf_fmt.output }}"
+        fmt_summary="${fmt_summary//'%'/'%25'}"
+        fmt_summary="${fmt_summary//$'%\n'/'%0A'}"
+        fmt_summary="${fmt_summary//$'\r'/'%0D'}"
+        fmt_summary="${fmt_summary//$'$'/'\$'}"
+        fmt_summary="${fmt_summary//$'`'/'%60'}"
+        echo "::set-output name=fmt_summary::$fmt_summary"        
       shell: bash
     - id: tf_init
       working-directory: terraform
@@ -73,14 +75,13 @@ runs:
       run: |
         terraform plan -no-color > plan.txt
         tf_plan_env=$(cat plan.txt)
-        echo 'TF_OUT<<EOF' >> $GITHUB_ENV
-        echo $tf_plan_env >> $GITHUB_ENV
-        echo 'EOF' >> $GITHUB_ENV
-        echo "::set-output name=tfplan_output::$tf_plan_env"
+
+        echo "::set-output name=tfplan_output::$(cat plan.txt)"
       shell: bash
 # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#environment-files
     - id: tf_plan_cleanup
       run: |
+        plancontent=$(cat plan.txt)
         plancontent="${{ env.TF_OUT }}"
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'%\n'/'%0A'}"
