@@ -56,7 +56,7 @@ runs:
       shell: bash
     - id: tffmt_cleanup
       run: |
-        fmtcontent="$plan_output"
+        fmtcontent="${{ steps.tf_fmt.output }}"
         fmtcontent="${fmtcontent//'%'/'%25'}"
         fmtcontent="${fmtcontent//$'%\n'/'%0A'}"
         fmtcontent="${fmtcontent//$'\r'/'%0D'}"
