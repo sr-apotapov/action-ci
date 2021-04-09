@@ -73,7 +73,7 @@ runs:
       run: |
         terraform plan -no-color > plan.txt
         tf_plan_env=$(cat plan.txt)
-        echo '<<EOF' >> $GITHUB_ENV
+        echo 'tf_plan_github<<EOF' >> $GITHUB_ENV
         $tf_plan_env >> $GITHUB_ENV
         echo 'EOF' >> $GITHUB_ENV
         echo "::set-output name=tfplan_output::$tf_plan_env"
@@ -81,7 +81,7 @@ runs:
 # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#environment-files
     - id: tf_plan_cleanup
       run: |
-        plancontent="${{ env.tfplan_out }}"
+        plancontent="${{ env.tf_plan_github }}"
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'%\n'/'%0A'}"
         plancontent="${plancontent//$'\r'/'%0D'}"
