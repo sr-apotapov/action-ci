@@ -72,12 +72,12 @@ runs:
       working-directory: terraform
       run: |
         terraform plan -no-color > plan.txt
-        tfplan_out=$(cat plan.txt)
-        echo "::set-output name=tfplan_output::$tfplan_out"
+        plancontent=$(cat plan.txt)
+        echo "::set-output name=tfplan_output::$plancontent"
       shell: bash
     - id: tf_plan_cleanup
       run: |
-        fmtcontent="${{ steps.terraform_plan.output }}"
+        plancontent="$tfplan_out"
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'%\n'/'%0A'}"
         plancontent="${plancontent//$'\r'/'%0D'}"
