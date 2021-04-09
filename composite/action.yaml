@@ -12,7 +12,7 @@ runs:
   steps:
     - id: tfe_url
       shell: bash
-      working-directory: /github/workspace
+      working-directory: /github/home
       run: |
         run_url=$(echo "${{ inputs.tf_plan_output }}" | grep -o "run-[A-Za-z0-9]*") \
         tfe_plan_url="https://app.terraform.io/api/v2/runs/${run_url}/plan" \
@@ -20,8 +20,8 @@ runs:
         curl \
         --header "Authorization: Bearer $tf_api_token" \
         --header "Content-Type: application/json" \
-        $tfe_plan_url -o /github/workspace/tfplan.json
-        cd /github/workspace
+        $tfe_plan_url -o /github/home/tfplan.json
+        cd /github/home
         pwd
 
     # - id: envs #TODO cleanup GITHUB_WORKSPACE and other env vars 
