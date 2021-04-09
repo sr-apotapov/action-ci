@@ -11,11 +11,13 @@ inputs:
 outputs:
   tfplan_output:
     description: 'tf plan output'
-    value: ${{ steps.tf_plan.outputs.tfplan }}
+    value: ${{ steps.tf_plan.outputs.tfplan_output }}
   tfplan_summary:
     description: 'tf plan output for summary'
-    value: ${{ steps.tf_plan.outputs.tfplan }}
-
+    value: ${{ steps.tf_plan_cleanup.outputs.plancontent }}
+  tffmt_cleanup:
+    description: 'tf plan output for summary'
+    value: ${{ steps.tffmt_cleanup.outputs.fmtcontent }}
 runs:
   using: "composite"
   steps:
@@ -50,6 +52,16 @@ runs:
     - id: tf_fmt
       run: terraform fmt -check -diff
       shell: bash
+    - id: tffmt_cleanup
+      run: |
+        fmtcontent="$plan_output"
+        fmtcontent="${fmtcontent//'%'/'%25'}"
+        fmtcontent="${fmtcontent//$'%\n'/'%0A'}"
+        fmtcontent="${fmtcontent//$'\r'/'%0D'}"
+        fmtcontent="${fmtcontent//$'$'/'\$'}"
+        fmtcontent="${fmtcontent//$'`'/'%60'}"
+        echo "::set-output name=fmtcontent::$fmtcontent"        
+      shell: bash
     - id: tf_init
       run: terraform init
       shell: bash
@@ -60,11 +72,11 @@ runs:
       shell: bash
     - id: tf_plan_cleanup
       run: |
-        logcontent="$plan_output"
-        logcontent="${logcontent//'%'/'%25'}"
-        logcontent="${logcontent//$'%\n'/'%0A'}"
-        logcontent="${logcontent//$'\r'/'%0D'}"
-        logcontent="${logcontent//$'$'/'\$'}"
-        logcontent="${logcontent//$'`'/'%60'}"
-        echo "::set-output name=content::$logcontent"        
+        plancontent="$plan_output"
+        plancontent="${plancontent//'%'/'%25'}"
+        plancontent="${plancontent//$'%\n'/'%0A'}"
+        plancontent="${plancontent//$'\r'/'%0D'}"
+        plancontent="${plancontent//$'$'/'\$'}"
+        plancontent="${plancontent//$'`'/'%60'}"
+        echo "::set-output name=plancontent::$plancontent"        
       shell: bash

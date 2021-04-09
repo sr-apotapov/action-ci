@@ -1,15 +1,23 @@
 name: "Linter"
 description: "The First Action"
 inputs:
-  token:
+  code_scan_out:
     description: 'GITHUB_TOKEN'
     required: true
-    default: ${{secrets.GH_ACTION_TOKEN}}
+outputs:
+  code_scan_output:
+    description: 'tf plan output'
+    value: ${{ steps.cleaning_code.outputs.content }}
 runs:
-  using: 'docker'
-  image: 'docker://ghcr.io/github/super-linter:v3.15.5'
-  args:
-    - ${{ inputs.token }}
-branding:
-  icon: 'check-square'
-  color: 'white'
+  using: "composite"
+  steps:
+    - id: cleaning_code
+      shell: bash
+      run: |
+        logcontent="$(ls ./code_scan/*.tap | xargs cat)"
+        logcontent="${logcontent//'%'/'%25'}"
+        logcontent="${logcontent//$'\n'/'%0A'}"
+        logcontent="${logcontent//$'\r'/'%0D'}"
+        logcontent="${logcontent//$'$'/'\$'}"
+        logcontent="${logcontent//$'`'/'%60'}"
+        echo "::set-output name=content::$logcontent"
