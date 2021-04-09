@@ -22,7 +22,7 @@ runs:
         curl \
         --header "Authorization: Bearer $tf_api_token" \
         --header "Content-Type: application/json" \
-        $tfe_plan_url -o tfplan.json
+        $tfe_plan_url -o /home/runner/work/tf-pingdom/tf-pingdom/tfplan.json
         pwd
 
     # - id: envs #TODO cleanup GITHUB_WORKSPACE and other env vars 
