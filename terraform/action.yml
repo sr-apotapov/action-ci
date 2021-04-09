@@ -72,19 +72,17 @@ runs:
       working-directory: terraform
       run: |
         terraform plan -no-color > plan.txt
-        plancontent=$(cat plan.txt)
-        echo "HERE A PLAN1!!! $plancontent"
-        echo "::set-output name=tfplan_output::$plancontent"
-        echo '::set-env name=plancontentvar::echo $plancontent'
+        tf_plan_env=$(cat plan.txt)
+        echo "::set-output name=tfplan_output::$tf_plan_env"
       shell: bash
     - id: tf_plan_cleanup
       run: |
-        plancontent="$plancontentvar"
+        plancontent="$tf_plan_env"
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'%\n'/'%0A'}"
         plancontent="${plancontent//$'\r'/'%0D'}"
         plancontent="${plancontent//$'$'/'\$'}"
         plancontent="${plancontent//$'\`'/'%60'}"
-        echo "HERE A PLAN2!!! $plancontent"
+        echo "HERE A PLAN!!! $plancontent"
         echo "::set-output name=plancontent::$plancontent"        
       shell: bash
