@@ -89,5 +89,5 @@ runs:
         plancontent="${plancontent//$'$'/'\$'}"
         plancontent="${plancontent//$'\`'/'%60'}"
         echo "HERE A PLAN!!! $plancontent"
-        echo "::set-output name=plancontent::$plancontent"        
+        echo "::set-output name=tfplan_summary::$plancontent"        
       shell: bash
