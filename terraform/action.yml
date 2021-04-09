@@ -51,6 +51,7 @@ runs:
     #   run: terraform -chdir=./terraform apply
     #   shell: bash
     - id: tf_fmt
+      working-directory: terraform
       run: terraform fmt -check -diff
       shell: bash
     - id: tffmt_cleanup
@@ -64,9 +65,11 @@ runs:
         echo "::set-output name=fmtcontent::$fmtcontent"        
       shell: bash
     - id: tf_init
+      working-directory: terraform
       run: terraform init
       shell: bash
     - id: tf_plan
+      working-directory: terraform
       run: |
         plan_output=$("terraform plan -no-color")
         echo "::set-output name=tfplan_output::$plan_output"
@@ -78,6 +81,6 @@ runs:
         plancontent="${plancontent//$'%\n'/'%0A'}"
         plancontent="${plancontent//$'\r'/'%0D'}"
         plancontent="${plancontent//$'$'/'\$'}"
-        plancontent="${plancontent//$'`'/'%60'}"
+        plancontent="${plancontent//$'\`'/'%60'}"
         echo "::set-output name=plancontent::$plancontent"        
       shell: bash
