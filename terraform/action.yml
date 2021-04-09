@@ -54,10 +54,11 @@ runs:
       working-directory: terraform
       run: |
         terraform fmt -check -diff > fmt.txt
+        echo '::set-env name=fmt_summary::$(cat fmt.txt)'
       shell: bash
     - id: tffmt_cleanup
       run: |
-        fmt_summary=$(cat fmt.txt)
+        fmt_summary=${{ env.fmt_summary }}
         fmt_summary="${fmt_summary//'%'/'%25'}"
         fmt_summary="${fmt_summary//$'%\n'/'%0A'}"
         fmt_summary="${fmt_summary//$'\r'/'%0D'}"
