@@ -8,9 +8,9 @@ inputs:
     description: 'tf plan output'
     required: true
 outputs:
-  tfplan: 
+  tfeplan: 
     description: "Random number"
-    value: ${{ steps.get_tfe_url.outputs.tfplan }}
+    value: ${{ steps.get_tfe_url.outputs.tfeplan }}
 runs:
   using: "composite"
   steps:
@@ -24,7 +24,7 @@ runs:
         curl --header "Authorization: Bearer $TOKEN" --header "Content-Type: application/json" $tfe_plan_url -o tfplan.json
         tfplan_env=$(cat tfplan.json) || true
         echo "$tfplan_env" || true
-        echo "::set-output name=tfplan::$(echo $tfplan_env)"
+        echo "::set-output name=tfeplan::$(echo $tfplan_env)"
       env:
         PLAN_OUTPUT: ${{ inputs.tf_plan_output }}
         TOKEN: ${{ inputs.tf_api_token }}
