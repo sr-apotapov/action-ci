@@ -68,15 +68,15 @@ runs:
       working-directory: terraform
       run: terraform init
       shell: bash
-    - id: tf_plan
+    - id: terraform_plan
       working-directory: terraform
       run: |
-        plan_output=$("terraform plan -no-color")
+        terraform plan -no-color
         echo "::set-output name=tfplan_output::$plan_output"
       shell: bash
     - id: tf_plan_cleanup
       run: |
-        plancontent="$plan_output"
+        fmtcontent="${{ steps.terraform_plan.output }}"
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'%\n'/'%0A'}"
         plancontent="${plancontent//$'\r'/'%0D'}"
