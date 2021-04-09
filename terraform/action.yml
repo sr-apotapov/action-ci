@@ -1,13 +1,6 @@
 name: 'Terraform Module'
 description: 'TF fmt & init & plan'
-# inputs:
-#   terraform_version:
-#     description: 'tf version'
-#     required: false
-#     default: '0.13.6'
-#   cli_config_credentials_token:
-#     description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
-#     required: true
+
 outputs:
   fmt_summary:
     description: 'tf plan output for summary'
@@ -21,35 +14,9 @@ outputs:
 runs:
   using: "composite"
   steps:
-    # - id: envs 
-    #   run: |
-    #     export RUNNER_TEMP="/tmp"
-    #     export terraform_version="${{ inputs.terraform_version }}"
-    #   shell: bash
-    # - id: set_credentials
-    #   shell: bash
-    #   run: |
-    #     echo 'credentials "app.terraform.io" {
-    #             token = "$TOKEN"
-    #           }' > ~/.terraformrc
-    #   env:
-    #     TF_TOKEN: cli_config_credentials_token
-    # - id: tf_install  
-    #   run: |
-    #     wget -q https://releases.hashicorp.com/terraform/"$TERRAFORM_VERSION"/terraform_"$TERRAFORM_VERSION"_linux_amd64.zip
-    #     mkdir tf_src
-    #     unzip -o terraform_"$TERRAFORM_VERSION"_linux_amd64.zip -d tf_src
-    #     chmod +x tf_src/terraform
-    #     sudo mv tf_src/terraform /usr/local/bin/
-    #   shell: bash
-    #   env: 
-    #     TERRAFORM_VERSION: ${{ inputs.terraform_version }}
     - id: tf_version
       run: terraform version
       shell: bash
-    # - id: tf_folder
-    #   run: terraform -chdir=./terraform apply
-    #   shell: bash
     - id: tf_fmt
       working-directory: terraform
       run: |
@@ -82,3 +49,36 @@ runs:
         echo "::set-output name=tfplan_output::$tf_plan_env"
       shell: bash
 # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#environment-files
+
+
+# inputs:
+#   terraform_version:
+#     description: 'tf version'
+#     required: false
+#     default: '0.13.6'
+#   cli_config_credentials_token:
+#     description: 'The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.'
+#     required: true
+    # - id: envs 
+    #   run: |
+    #     export RUNNER_TEMP="/tmp"
+    #     export terraform_version="${{ inputs.terraform_version }}"
+    #   shell: bash
+    # - id: set_credentials
+    #   shell: bash
+    #   run: |
+    #     echo 'credentials "app.terraform.io" {
+    #             token = "$TOKEN"
+    #           }' > ~/.terraformrc
+    #   env:
+    #     TF_TOKEN: cli_config_credentials_token
+    # - id: tf_install  
+    #   run: |
+    #     wget -q https://releases.hashicorp.com/terraform/"$TERRAFORM_VERSION"/terraform_"$TERRAFORM_VERSION"_linux_amd64.zip
+    #     mkdir tf_src
+    #     unzip -o terraform_"$TERRAFORM_VERSION"_linux_amd64.zip -d tf_src
+    #     chmod +x tf_src/terraform
+    #     sudo mv tf_src/terraform /usr/local/bin/
+    #   shell: bash
+    #   env: 
+    #     TERRAFORM_VERSION: ${{ inputs.terraform_version }}
