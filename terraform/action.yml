@@ -82,5 +82,6 @@ runs:
         plancontent="${plancontent//$'\r'/'%0D'}"
         plancontent="${plancontent//$'$'/'\$'}"
         plancontent="${plancontent//$'\`'/'%60'}"
+        echo "HERE A PLAN!!! $plancontent"
         echo "::set-output name=plancontent::$plancontent"        
       shell: bash
