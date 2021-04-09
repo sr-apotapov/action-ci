@@ -71,8 +71,9 @@ runs:
     - id: terraform_plan
       working-directory: terraform
       run: |
-        terraform plan -no-color
-        echo "::set-output name=tfplan_output::$plan_output"
+        terraform plan -no-color > plan.txt
+        tfplan_out=$(cat plan.txt)
+        echo "::set-output name=tfplan_output::$tfplan_out"
       shell: bash
     - id: tf_plan_cleanup
       run: |
