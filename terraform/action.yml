@@ -40,6 +40,9 @@ runs:
         echo !!!CATTING THE PLAN!!!
         cat plan.txt
         TF_PLAN_ENV=$(cat plan.txt)
+        TF_PLAN_ENV="${TF_PLAN_ENV//'%'/'%25'}"
+        TF_PLAN_ENV="${TF_PLAN_ENV//$'%\n'/'%0A'}"
+        TF_PLAN_ENV="${TF_PLAN_ENV//$'\r'/'%0D'}"
         echo !!!ECHOING THE TF_PLAN_ENV!!!
         echo $TF_PLAN_ENV
         plancontent=$(cat plan.txt)
