@@ -7,7 +7,7 @@ outputs:
   tfplan_output:
     description: 'tf plan output'
     value: ${{ steps.terraform_plan.outputs.tfplan_output }}
-  tfplan_summary:
+  tf_plan_summary:
     description: 'tf plan output for summary'
     value: ${{ steps.terraform_plan.outputs.tfplan_summary }}
 runs:
@@ -37,14 +37,6 @@ runs:
       working-directory: terraform
       run: |
         terraform plan -no-color > plan.txt
-        echo !!!CATTING THE PLAN!!!
-        cat plan.txt
-        TF_PLAN_ENV=$(cat plan.txt)
-        TF_PLAN_ENV="${TF_PLAN_ENV//'%'/'%25'}"
-        TF_PLAN_ENV="${TF_PLAN_ENV//$'\n'/'%0A'}"
-        TF_PLAN_ENV="${TF_PLAN_ENV//$'\r'/'%0D'}"
-        echo !!!ECHOING THE TF_PLAN_ENV!!!
-        echo $TF_PLAN_ENV
         plancontent=$(cat plan.txt)
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'\n'/'%0A'}"
@@ -52,7 +44,6 @@ runs:
         plancontent="${plancontent//$'$'/'\$'}"
         plancontent="${plancontent//$'\`'/'%60'}"
         echo "::set-output name=tfplan_summary::$plancontent"        
-        echo "::set-output name=tfplan_output::$TF_PLAN_ENV"
       shell: bash
 # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#environment-files
 
