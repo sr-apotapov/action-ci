@@ -10,6 +10,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - run: find / -name "tfplanio.json"
+      shell: bash
+
     - id: tfe_url
       shell: bash
       run: |
