@@ -7,6 +7,10 @@ inputs:
   tf_plan_output:
     description: 'tf plan output'
     required: true
+outputs:
+  tfplan: 
+    description: "Random number"
+    value: ${{ steps.tfe_url.outputs.random_id }}
 runs:
   using: "composite"
   steps:
@@ -16,12 +20,14 @@ runs:
         run_url=$(echo "${{ inputs.tf_plan_output }}" | grep -o "run-[A-Za-z0-9]*") \
         tfe_plan_url="https://app.terraform.io/api/v2/runs/${run_url}/plan" \
         echo $tfe_plan_url \
-        curl \
+        tfplan_env=$(curl \
         --header "Authorization: Bearer $tf_api_token" \
         --header "Content-Type: application/json" \
-        $tfe_plan_url -o /home/runner/work/tf-pingdom/tf-pingdom/tfplan.json
-        pwd
-
+        $tfe_plan_url) \
+        echo $tfplan_env
+    - id: random_number_generator
+      run: echo "::set-output name=tfplan::$(echo $tfplan_env)"
+      shell: bash
     # - id: envs #TODO cleanup GITHUB_WORKSPACE and other env vars 
     #   run: |
     #     export RUNNER_TEMP="/tmp" \
