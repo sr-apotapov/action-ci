@@ -22,7 +22,7 @@ runs:
         terraform fmt -check -diff > fmt.txt
         fmt_summary=$(cat fmt.txt)
         fmt_summary="${fmt_summary//'%'/'%25'}"
-        fmt_summary="${fmt_summary//$'%\n'/'%0A'}"
+        fmt_summary="${fmt_summary//$'\n'/'%0A'}"
         fmt_summary="${fmt_summary//$'\r'/'%0D'}"
         fmt_summary="${fmt_summary//$'$'/'\$'}"
         fmt_summary="${fmt_summary//$'\`'/'%60'}"
@@ -41,13 +41,13 @@ runs:
         cat plan.txt
         TF_PLAN_ENV=$(cat plan.txt)
         TF_PLAN_ENV="${TF_PLAN_ENV//'%'/'%25'}"
-        TF_PLAN_ENV="${TF_PLAN_ENV//$'%\n'/'%0A'}"
+        TF_PLAN_ENV="${TF_PLAN_ENV//$'\n'/'%0A'}"
         TF_PLAN_ENV="${TF_PLAN_ENV//$'\r'/'%0D'}"
         echo !!!ECHOING THE TF_PLAN_ENV!!!
         echo $TF_PLAN_ENV
         plancontent=$(cat plan.txt)
         plancontent="${plancontent//'%'/'%25'}"
-        plancontent="${plancontent//$'%\n'/'%0A'}"
+        plancontent="${plancontent//$'\n'/'%0A'}"
         plancontent="${plancontent//$'\r'/'%0D'}"
         plancontent="${plancontent//$'$'/'\$'}"
         plancontent="${plancontent//$'\`'/'%60'}"
