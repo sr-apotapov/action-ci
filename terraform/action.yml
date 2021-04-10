@@ -25,6 +25,8 @@ runs:
         terraform fmt -check -diff 2>&1 | tee fmt.txt || true
         if cat fmt.txt | grep -q "Error:" ; then
           echo "::set-output name=fmt_result::failure"
+        else
+          echo "::set-output name=plan_result::success"  
         fi
         fmt_summary=$(cat fmt.txt)
         fmt_summary="${fmt_summary//'%'/'%25'}"
@@ -41,7 +43,7 @@ runs:
     - id: terraform_plan
       working-directory: terraform
       run: |
-        terraform plan -no-color 2>&1 | tee plan.txt
+        terraform plan -no-color 2>&1 | tee plan.txt || true
         if cat plan.txt | grep -q "Error:" ; then
           echo "::set-output name=plan_result::failure"  
         else
