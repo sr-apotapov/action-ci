@@ -2,7 +2,7 @@ name: "Linter"
 description: "The First Action"
 inputs:
   code_scan_out:
-    description: 'GITHUB_TOKEN'
+    description: 'code to scan'
     required: true
 outputs:
   code_scan_output:
@@ -14,10 +14,10 @@ runs:
     - id: cleaning_code
       shell: bash
       run: |
-        logcontent="$(ls ./code_scan/*.tap | xargs cat)"
-        logcontent="${logcontent//'%'/'%25'}"
-        logcontent="${logcontent//$'\n'/'%0A'}"
-        logcontent="${logcontent//$'\r'/'%0D'}"
-        logcontent="${logcontent//$'$'/'\$'}"
-        logcontent="${logcontent//$'`'/'%60'}"
-        echo "::set-output name=content::$logcontent"
+        codecontent="$(ls ./code_scan/*.tap | xargs cat)"
+        codecontent="${codecontent//'%'/'%25'}"
+        codecontent="${codecontent//$'\n'/'%0A'}"
+        codecontent="${codecontent//$'\r'/'%0D'}"
+        codecontent="${codecontent//$'$'/'\$'}"
+        codecontent="${codecontent//$'`'/'%60'}"
+        echo "::set-output name=content::$codecontent"

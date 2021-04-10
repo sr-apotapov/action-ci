@@ -2,11 +2,14 @@ name: 'Terraform Module'
 description: 'TF fmt & init & plan'
 outputs:
   fmt_summary:
-    description: 'tf plan output for summary'
+    description: 'tf fmt output for summary'
     value: ${{ steps.tf_fmt.outputs.fmt_summary }}
-  tfplan_output:
-    description: 'tf plan output'
-    value: ${{ steps.terraform_plan.outputs.tfplan_output }}
+  fmt_result:
+    description: 'tf fmt check if failure'
+    value: ${{ steps.tf_fmt.outputs.fmt_result }}
+  plan_result:
+    description: 'tf plan check if failure'
+    value: ${{ steps.terraform_plan.outputs.plan_result }}
   tf_plan_summary:
     description: 'tf plan output for summary'
     value: ${{ steps.terraform_plan.outputs.tfplan_summary }}
@@ -19,7 +22,10 @@ runs:
     - id: tf_fmt
       working-directory: terraform
       run: |
-        terraform fmt -check -diff > fmt.txt
+        terraform fmt -check -diff &> fmt.txt
+        if cat fmt.txt | grep -q "Error:" ; then
+          echo "::set-output name=fmt_result::'failure'"
+        fi
         fmt_summary=$(cat fmt.txt)
         fmt_summary="${fmt_summary//'%'/'%25'}"
         fmt_summary="${fmt_summary//$'\n'/'%0A'}"
@@ -28,7 +34,6 @@ runs:
         fmt_summary="${fmt_summary//$'\`'/'%60'}"
         echo "::set-output name=fmt_summary::$fmt_summary"    
       shell: bash
-
     - id: tf_init
       working-directory: terraform
       run: terraform init
@@ -36,7 +41,10 @@ runs:
     - id: terraform_plan
       working-directory: terraform
       run: |
-        terraform plan -no-color > plan.txt
+        terraform plan -no-color &>  plan.txt
+        if cat plan.txt | grep -q "Error:" ; then
+          echo "::set-output name=plan_result::'failure'"    
+        fi
         plancontent=$(cat plan.txt)
         plancontent="${plancontent//'%'/'%25'}"
         plancontent="${plancontent//$'\n'/'%0A'}"
