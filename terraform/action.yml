@@ -22,7 +22,7 @@ runs:
     - id: tf_fmt
       working-directory: terraform
       run: |
-        terraform fmt -check -diff 2&>1 | tee fmt.txt
+        terraform fmt -check -diff 2>&1 | tee fmt.txt
         if cat fmt.txt | grep -q "Error:" ; then
           echo "::set-output name=fmt_result::'failure'"
         fi
@@ -41,7 +41,7 @@ runs:
     - id: terraform_plan
       working-directory: terraform
       run: |
-        terraform plan -no-color 2&>1 | tee plan.txt
+        terraform plan -no-color 2>&1 | tee plan.txt
         if cat plan.txt | grep -q "Error:" ; then
           echo "::set-output name=plan_result::'failure'"  
         else
