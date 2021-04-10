@@ -41,7 +41,7 @@ runs:
     - id: terraform_plan
       working-directory: terraform
       run: |
-        terraform plan -no-color 2>&1 | tee plan.txt
+        terraform plan -no-color 2>&1 | tee plan.txt || true
         if cat plan.txt | grep -q "Error:" ; then
           echo "::set-output name=plan_result::failure"  
         else
