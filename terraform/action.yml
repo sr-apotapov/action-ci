@@ -25,8 +25,6 @@ runs:
         terraform fmt -check -diff 2&>1 | tee fmt.txt
         if cat fmt.txt | grep -q "Error:" ; then
           echo "::set-output name=fmt_result::'failure'"
-        else
-          echo "::set-output name=fmt_result::'success'"  
         fi
         fmt_summary=$(cat fmt.txt)
         fmt_summary="${fmt_summary//'%'/'%25'}"
