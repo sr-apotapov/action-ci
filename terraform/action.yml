@@ -47,7 +47,7 @@ runs:
         if cat plan.txt | grep -q "Error:" ; then
           echo "::set-output name=plan_result::failure"  
         else
-          echo "::set-output name=plan_result::'success'"  
+          echo "::set-output name=plan_result::success"  
         fi
         plancontent=$(cat plan.txt)
         plancontent="${plancontent//'%'/'%25'}"
