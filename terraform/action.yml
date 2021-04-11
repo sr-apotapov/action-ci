@@ -7,6 +7,9 @@ outputs:
   fmt_result:
     description: 'tf fmt check if failure'
     value: ${{ steps.tf_fmt.outputs.fmt_result }}
+  init_result:
+    description: 'tf init check if failure'
+    value: ${{ steps.tf_init.outputs.init_result }}
   plan_result:
     description: 'tf plan check if failure'
     value: ${{ steps.terraform_plan.outputs.plan_result }}
@@ -39,7 +42,12 @@ runs:
       shell: bash
     - id: tf_init
       working-directory: terraform
-      run: terraform init
+      run: |
+        terraform init 2>&1 | tee init.txt || true
+        if cat init.txt | grep -q "Error:" ; then
+          echo "::set-output name=init_result::failure"  
+        else
+          echo "::set-output name=init_result::success"  
       shell: bash
     - id: terraform_plan
       working-directory: terraform
