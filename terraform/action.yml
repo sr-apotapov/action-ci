@@ -1,7 +1,7 @@
 name: 'Terraform Module'
 description: 'TF fmt & init & plan'
 outputs:
-  fmt_summary:
+  tf_fmt_summary:
     description: 'tf fmt output for summary'
     value: ${{ steps.tf_fmt.outputs.fmt_summary }}
   fmt_result:
