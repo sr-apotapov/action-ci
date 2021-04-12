@@ -26,7 +26,6 @@ runs:
       working-directory: terraform
       run: |
         terraform fmt -check -diff 2>&1 | tee fmt.txt || true
-        cat fmt.txt
         if cat fmt.txt | grep -q "Error:" ; then
           echo "::set-output name=fmt_result::failure"
         else
@@ -47,7 +46,8 @@ runs:
         if cat init.txt | grep -q "Error:" ; then
           echo "::set-output name=init_result::failure"  
         else
-          echo "::set-output name=init_result::success"  
+          echo "::set-output name=init_result::success"
+        fi
       shell: bash
     - id: terraform_plan
       working-directory: terraform
