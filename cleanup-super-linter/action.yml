@@ -1,12 +1,12 @@
 name: "Linter"
-description: "The First Action"
+description: "Prepare the super linter logs to be used later"
 inputs:
   code_scan_out:
     description: 'code to scan'
     required: true
 outputs:
   code_scan_output:
-    description: 'tf plan output'
+    description: 'super linter logs cleaning output'
     value: ${{ steps.cleaning_code.outputs.content }}
 runs:
   using: "composite"
