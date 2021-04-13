@@ -15,7 +15,7 @@ runs:
       shell: bash
       run: |
           if [[ $POLICY_CHECK == *'"failures": []'* ]];then
-            echo "::set-output name=scan_check_result::true"
+            echo "::set-output name=scan_check_result::success"
           else
             echo "::set-output name=scan_check_result::failure"
           fi
