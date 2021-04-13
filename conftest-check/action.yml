@@ -1,0 +1,23 @@
+name: "Conftest"
+description: "check if Conftest scan have failures in it"
+inputs:
+  policy_exec_output:
+    description: 'policy scan result to check'
+    required: true
+outputs:
+  scan_check_result:
+    description: 'the result of check'
+    value: ${{ steps.check.outputs.check_result }}
+runs:
+  using: "composite"
+  steps:
+    - id: check
+      shell: bash
+      run: |
+          if [[ $POLICY_CHECK == *'"failures": []'* ]];then
+            echo "::set-output name=scan_check_result::true"
+          else
+            echo "::set-output name=scan_check_result::failure"
+          fi
+      env:
+        POLICY_CHECK: ${{ inputs.policy_exec_output }}
