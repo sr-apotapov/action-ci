@@ -15,9 +15,9 @@ runs:
       shell: bash
       run: |
           if [[ $POLICY_CHECK == *'"failures": []'* ]];then
-            echo "::set-output name=check_result::'success'"
+            echo "::set-output name=check_result::success"
           else
-            echo "::set-output name=check_result::'failure'"
+            echo "::set-output name=check_result::failure"
           fi
       env:
         POLICY_CHECK: ${{ inputs.policy_exec_output }}
